@@ -33,7 +33,13 @@ pub fn detect(b: *std.Build) !Version {
         // the dist tarball - the tarball uses the branch as part of the
         // name and including slashes means that the tarball will end up in
         // subdirectories instead of where it's supposed to be.
-        std.mem.replaceScalar(u8, tmp, '/', '-');
+        //
+        // Also replace '_' with '-' to stay consistent with the Semantic
+        // Version which does not allow underscores.
+        for (tmp) |*char| {
+            if (char.* == '/' or char.* == '_')
+                char.* = '-';
+        }
         break :b tmp;
     };
 

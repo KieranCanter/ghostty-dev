@@ -240,7 +240,11 @@ pub fn init(b: *std.Build, appVersion: []const u8) !Config {
         // If an explicit version is given, we always use it.
         try std.SemanticVersion.parse(v)
     else version: {
-        const app_version = try std.SemanticVersion.parse(appVersion);
+        // Ensure proper Semantic Version syntax by replacing underscores with
+        // hyphens.
+        const semver_str = try b.allocator.dupe(u8, appVersion);
+        std.mem.replaceScalar(u8, semver_str, '_', '-');
+        const app_version = try std.SemanticVersion.parse(semver_str);
 
         // Is ghostty a dependency? If so, skip git detection.
         if (is_dep) break :version .{
